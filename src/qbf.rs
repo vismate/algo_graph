@@ -10,7 +10,7 @@ pub struct QBFOutput<const N: usize> {
 pub type QBFResult<const N: usize> = Result<QBFOutput<N>, Vertex>;
 
 pub fn qbf<const N: usize>(graph: &Graph<N>, s: Vertex) -> QBFResult<N> {
-    let mut d = [-1; N];
+    let mut d = [isize::MAX; N];
     let mut pi = [None; N];
     let mut e = [0; N];
     let mut inq = [false; N];
@@ -24,7 +24,7 @@ pub fn qbf<const N: usize>(graph: &Graph<N>, s: Vertex) -> QBFResult<N> {
         inq[u] = false;
 
         for &(v, w) in &graph.adjacency_list[u] {
-            if d[v] == -1 || d[v] > d[u] + w {
+            if d[v] > d[u] + w {
                 d[v] = d[u] + w;
                 pi[v] = Some(u);
                 e[v] += 1;

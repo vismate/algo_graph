@@ -1,10 +1,18 @@
-use crate::graph::{Graph, Vertex};
+use crate::graph::{Edge, Graph, Vertex};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Color {
+pub enum Color {
     White,
     Grey,
     Black,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum EdgeKind {
+    Tree,
+    Forward,
+    Backward,
+    Cross,
 }
 
 #[derive(Debug, Clone)]
@@ -13,6 +21,7 @@ pub struct DFSOutput<const N: usize> {
     f: [usize; N],
     pi: [Option<Vertex>; N],
     topological_stack: Option<Vec<Vertex>>,
+    classified_edges: Vec<(Edge, EdgeKind)>,
 }
 
 pub fn dfs<const N: usize>(graph: &Graph<N>) -> DFSOutput<N> {
@@ -22,6 +31,7 @@ pub fn dfs<const N: usize>(graph: &Graph<N>) -> DFSOutput<N> {
     let mut f = [0; N];
     let mut pi = [None; N];
     let mut topological_stack = Some(Vec::new());
+    let mut classified_edges = Vec::new();
 
     for u in 0..N {
         if color[u] == Color::White {
@@ -34,6 +44,7 @@ pub fn dfs<const N: usize>(graph: &Graph<N>) -> DFSOutput<N> {
                 &mut f,
                 &mut pi,
                 &mut topological_stack,
+                &mut classified_edges,
             );
         }
     }
@@ -43,6 +54,7 @@ pub fn dfs<const N: usize>(graph: &Graph<N>) -> DFSOutput<N> {
         f,
         pi,
         topological_stack,
+        classified_edges,
     }
 }
 
@@ -56,16 +68,41 @@ fn dfs_visit<const N: usize>(
     f: &mut [usize; N],
     pi: &mut [Option<Vertex>; N],
     topological_stack: &mut Option<Vec<Vertex>>,
+    classified_edges: &mut Vec<(Edge, EdgeKind)>,
 ) {
     color[u] = Color::Grey;
     *time += 1;
     d[u] = *time;
-    for &(v, _) in &graph.adjacency_list[u] {
-        if color[v] == Color::White {
-            pi[v] = Some(u);
-            dfs_visit(graph, v, time, color, d, f, pi, topological_stack);
-        } else if color[v] == Color::Grey {
-            topological_stack.take();
+    for &(v, w) in &graph.adjacency_list[u] {
+        match color[v] {
+            Color::White => {
+                pi[v] = Some(u);
+                classified_edges.push((Edge { u, v, w }, EdgeKind::Tree));
+                dfs_visit(
+                    graph,
+                    v,
+                    time,
+                    color,
+                    d,
+                    f,
+                    pi,
+                    topological_stack,
+                    classified_edges,
+                );
+            }
+            Color::Grey => {
+                topological_stack.take();
+                classified_edges.push((Edge { u, v, w }, EdgeKind::Backward));
+            }
+
+            Color::Black => {
+                let kind = if d[u] < d[v] {
+                    EdgeKind::Forward
+                } else {
+                    EdgeKind::Cross
+                };
+                classified_edges.push((Edge { u, v, w }, kind));
+            }
         }
     }
 
