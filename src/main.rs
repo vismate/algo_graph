@@ -1,14 +1,4 @@
-#![feature(let_chains)]
-mod bfs;
-mod dagshp;
-mod dfs;
-mod dijkstra;
-mod dot_impl;
-mod graph;
-mod kruskal;
-mod prim;
-mod qbf;
-
+use algo_graph::*;
 use bfs::bfs;
 use dagshp::dagshp;
 use dfs::dfs;
@@ -17,8 +7,6 @@ use graph::Graph;
 use kruskal::kruskal;
 use prim::prim;
 use qbf::qbf;
-
-//TODO: DAGshP
 
 fn main() {
     let g1 = Graph::from_adjacency_list([
