@@ -11,7 +11,14 @@ impl<'a, const N: usize> Labeller<'a, Vertex, Edge> for Graph<N> {
     }
 
     fn node_label<'b>(&'b self, n: &Vertex) -> LabelText<'b> {
-        LabelText::LabelStr(String::from(('a'..='z').nth(*n).unwrap()).into())
+        LabelText::LabelStr(
+            String::from(
+                ('a'..='z')
+                    .nth(*n)
+                    .expect("cannot label more than 26 nodes at the moment"),
+            )
+            .into(),
+        )
     }
 
     fn edge_label<'b>(&'b self, e: &Edge) -> LabelText<'b> {
