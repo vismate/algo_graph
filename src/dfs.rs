@@ -1,4 +1,5 @@
 use crate::graph::{Edge, Graph, Vertex};
+use infinitable::Infinitable::{self, *};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Color {
@@ -17,8 +18,8 @@ pub enum EdgeKind {
 
 #[derive(Debug, Clone)]
 pub struct DFSOutput<const N: usize> {
-    d: [usize; N],
-    f: [usize; N],
+    d: [Infinitable<usize>; N],
+    f: [Infinitable<usize>; N],
     pi: [Option<Vertex>; N],
     topological_stack: Option<Vec<Vertex>>,
     classified_edges: Vec<(Edge, EdgeKind)>,
@@ -27,8 +28,8 @@ pub struct DFSOutput<const N: usize> {
 pub fn dfs<const N: usize>(graph: &Graph<N>) -> DFSOutput<N> {
     let mut time: usize = 0;
     let mut color = [Color::White; N];
-    let mut d = [0; N];
-    let mut f = [0; N];
+    let mut d = [Infinity; N];
+    let mut f = [Infinity; N];
     let mut pi = [None; N];
     let mut topological_stack = Some(Vec::new());
     let mut classified_edges = Vec::new();
@@ -64,15 +65,15 @@ fn dfs_visit<const N: usize>(
     u: Vertex,
     time: &mut usize,
     color: &mut [Color; N],
-    d: &mut [usize; N],
-    f: &mut [usize; N],
+    d: &mut [Infinitable<usize>; N],
+    f: &mut [Infinitable<usize>; N],
     pi: &mut [Option<Vertex>; N],
     topological_stack: &mut Option<Vec<Vertex>>,
     classified_edges: &mut Vec<(Edge, EdgeKind)>,
 ) {
     color[u] = Color::Grey;
     *time += 1;
-    d[u] = *time;
+    d[u] = Finite(*time);
     for &(v, w) in &graph.adjacency_list[u] {
         match color[v] {
             Color::White => {
@@ -107,7 +108,7 @@ fn dfs_visit<const N: usize>(
     }
 
     *time += 1;
-    f[u] = *time;
+    f[u] = Finite(*time);
     color[u] = Color::Black;
     if let Some(s) = topological_stack {
         s.push(u);

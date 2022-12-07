@@ -3,9 +3,11 @@ use crate::{
     graph::{Graph, Vertex},
 };
 
+use infinitable::Infinitable::{self, *};
+
 #[derive(Debug, Clone)]
 pub struct DAGshPOutput<const N: usize> {
-    d: [isize; N],
+    d: [Infinitable<isize>; N],
     pi: [Option<Vertex>; N],
 }
 
@@ -56,19 +58,20 @@ fn df_visit<const N: usize>(
 }
 
 fn dagshps<const N: usize>(graph: &Graph<N>, mut stack: Vec<Vertex>) -> DAGshPOutput<N> {
-    let mut d = [isize::MAX; N];
+    let mut d = [Infinity; N];
     let mut pi = [None; N];
 
     let s = *stack
         .last()
         .expect("at least one element should be in stack");
-    d[s] = 0;
+    d[s] = Finite(0);
 
     while let Some(u) = stack.pop() {
         for &(v, w) in &graph.adjacency_list[u] {
-            if d[v] > d[u] + w {
+            let ed = Finite(w + d[u].finite().expect("d[u] should be finite by this point"));
+            if d[v] > ed {
                 pi[v] = Some(u);
-                d[v] = d[u] + w;
+                d[v] = ed;
             }
         }
     }

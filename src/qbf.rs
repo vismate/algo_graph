@@ -1,22 +1,23 @@
 use crate::graph::{Graph, Vertex};
+use infinitable::Infinitable::{self, *};
 use std::collections::VecDeque;
 
 #[derive(Debug, Clone)]
 pub struct QBFOutput<const N: usize> {
-    d: [isize; N],
+    d: [Infinitable<isize>; N],
     pi: [Option<Vertex>; N],
 }
 
 pub type QBFResult<const N: usize> = Result<QBFOutput<N>, Vertex>;
 
 pub fn qbf<const N: usize>(graph: &Graph<N>, s: Vertex) -> QBFResult<N> {
-    let mut d = [isize::MAX; N];
+    let mut d = [Infinity; N];
     let mut pi = [None; N];
     let mut e = [0; N];
     let mut inq = [false; N];
     let mut q = VecDeque::with_capacity(N);
 
-    d[s] = 0;
+    d[s] = Finite(0);
     q.push_back(s);
     inq[s] = true;
 
@@ -24,8 +25,9 @@ pub fn qbf<const N: usize>(graph: &Graph<N>, s: Vertex) -> QBFResult<N> {
         inq[u] = false;
 
         for &(v, w) in &graph.adjacency_list[u] {
-            if d[v] > d[u] + w {
-                d[v] = d[u] + w;
+            let ed = Finite(w + d[u].finite().expect("d[u] should be finite by this point"));
+            if d[v] > ed {
+                d[v] = ed;
                 pi[v] = Some(u);
                 e[v] += 1;
 
@@ -47,13 +49,12 @@ pub fn qbf<const N: usize>(graph: &Graph<N>, s: Vertex) -> QBFResult<N> {
 fn find_neg_cycle<const N: usize>(mut v: Vertex, pi: &[Option<Vertex>; N]) -> Vertex {
     let mut b = [false; N];
 
-    b[v] = true;
-    v = pi[v].expect("in case of a negative cycle v should always have a parent");
-
-    while !b[v] {
+    loop {
         b[v] = true;
         v = pi[v].expect("in case of a negative cycle v should always have a parent");
-    }
 
-    v
+        if b[v] {
+            break v;
+        }
+    }
 }
