@@ -3,6 +3,7 @@ mod bfs;
 mod dagshp;
 mod dfs;
 mod dijkstra;
+mod dot_impl;
 mod graph;
 mod kruskal;
 mod prim;
@@ -87,4 +88,8 @@ fn main() {
     ]);
 
     println!("{:?}", qbf(&g7, 0));
+
+    use std::fs::File;
+    let mut f = File::create("graph.dot").unwrap();
+    dot::render(&g7, &mut f).unwrap();
 }
