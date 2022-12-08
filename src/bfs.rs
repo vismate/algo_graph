@@ -4,8 +4,8 @@ use std::collections::VecDeque;
 
 #[derive(Debug, Clone)]
 pub struct BFSOutput<const N: usize> {
-    d: [Infinitable<usize>; N],
-    pi: [Option<Vertex>; N],
+    pub d: [Infinitable<usize>; N],
+    pub pi: [Option<Vertex>; N],
 }
 
 pub fn bfs<const N: usize>(graph: &Graph<N>, s: Vertex) -> BFSOutput<N> {

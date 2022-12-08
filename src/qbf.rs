@@ -4,8 +4,8 @@ use std::collections::VecDeque;
 
 #[derive(Debug, Clone)]
 pub struct QBFOutput<const N: usize> {
-    d: [Infinitable<isize>; N],
-    pi: [Option<Vertex>; N],
+    pub d: [Infinitable<isize>; N],
+    pub pi: [Option<Vertex>; N],
 }
 
 pub type QBFResult<const N: usize> = Result<QBFOutput<N>, Vertex>;

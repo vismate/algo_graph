@@ -5,8 +5,8 @@ use std::cmp::Reverse;
 
 #[derive(Debug, Clone)]
 pub struct DijkstraOutput<const N: usize> {
-    d: [Infinitable<isize>; N],
-    pi: [Option<Vertex>; N],
+    pub d: [Infinitable<isize>; N],
+    pub pi: [Option<Vertex>; N],
 }
 
 pub fn dijkstra<const N: usize>(graph: &Graph<N>, s: Vertex) -> DijkstraOutput<N> {

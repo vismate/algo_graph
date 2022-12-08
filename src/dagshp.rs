@@ -7,8 +7,8 @@ use infinitable::Infinitable::{self, *};
 
 #[derive(Debug, Clone)]
 pub struct DAGshPOutput<const N: usize> {
-    d: [Infinitable<isize>; N],
-    pi: [Option<Vertex>; N],
+    pub d: [Infinitable<isize>; N],
+    pub pi: [Option<Vertex>; N],
 }
 
 type DAGshPResult<const N: usize> = Result<DAGshPOutput<N>, (Vertex, [Option<Vertex>; N])>;

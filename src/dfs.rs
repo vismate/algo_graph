@@ -18,11 +18,11 @@ pub enum EdgeKind {
 
 #[derive(Debug, Clone)]
 pub struct DFSOutput<const N: usize> {
-    d: [Infinitable<usize>; N],
-    f: [Infinitable<usize>; N],
-    pi: [Option<Vertex>; N],
-    topological_stack: Option<Vec<Vertex>>,
-    classified_edges: Vec<(Edge, EdgeKind)>,
+    pub d: [Infinitable<usize>; N],
+    pub f: [Infinitable<usize>; N],
+    pub pi: [Option<Vertex>; N],
+    pub topological_stack: Option<Vec<Vertex>>,
+    pub classified_edges: Vec<(Edge, EdgeKind)>,
 }
 
 pub fn dfs<const N: usize>(graph: &Graph<N>) -> DFSOutput<N> {

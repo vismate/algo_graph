@@ -5,8 +5,8 @@ use std::cmp::Reverse;
 
 #[derive(Debug, Clone)]
 pub struct PrimOutput<const N: usize> {
-    c: [Infinitable<isize>; N],
-    p: [Option<Vertex>; N],
+    pub c: [Infinitable<isize>; N],
+    pub p: [Option<Vertex>; N],
 }
 
 pub fn prim<const N: usize>(graph: &Graph<N>, r: Vertex) -> PrimOutput<N> {
