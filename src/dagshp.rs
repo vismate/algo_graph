@@ -11,7 +11,7 @@ pub struct DAGshPOutput<const N: usize> {
     pub pi: [Option<Vertex>; N],
 }
 
-type DAGshPResult<const N: usize> = Result<DAGshPOutput<N>, (Vertex, [Option<Vertex>; N])>;
+pub type DAGshPResult<const N: usize> = Result<DAGshPOutput<N>, (Vertex, [Option<Vertex>; N])>;
 
 pub fn dagshp<const N: usize>(graph: &Graph<N>, s: Vertex) -> DAGshPResult<N> {
     let stack = topological_sort(graph, s)?;
