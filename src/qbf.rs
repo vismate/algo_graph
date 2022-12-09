@@ -8,7 +8,7 @@ pub struct QBFOutput<const N: usize> {
     pub pi: [Option<Vertex>; N],
 }
 
-pub type QBFResult<const N: usize> = Result<QBFOutput<N>, Vertex>;
+pub type QBFResult<const N: usize> = Result<QBFOutput<N>, (Vertex, [Option<Vertex>; N])>;
 
 pub fn qbf<const N: usize>(graph: &Graph<N>, s: Vertex) -> QBFResult<N> {
     let mut d = [Infinity; N];
@@ -37,7 +37,7 @@ pub fn qbf<const N: usize>(graph: &Graph<N>, s: Vertex) -> QBFResult<N> {
                         inq[v] = true;
                     }
                 } else {
-                    return Err(find_neg_cycle(v, &pi));
+                    return Err((find_neg_cycle(v, &pi), pi));
                 }
             }
         }
