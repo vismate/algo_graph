@@ -8,6 +8,9 @@ All examples in the ```examples``` folder run the algorithms on graphs from the 
 If you have rust (and cargo) installed on your machine you can run these examples with:
 ```
 cargo run --example <name of example (w/o file extention)>
+```
+For example to run the Queue-based Bellman-Ford example:
+```
 cargo run --example qbf
 ```
 
