@@ -11,7 +11,7 @@ fn main() {
         vec![],
     ]);
 
-    match dagshp(&g, 1) {
+    match dagshp(&g, 0) {
         Ok(dagshp_output) => {
             println!("{dagshp_output:?}");
             let mut f = File::create("dagshp.dot").expect("could not create file");
