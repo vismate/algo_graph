@@ -1,7 +1,10 @@
 use crate::graph::{Edge, Graph, Vertex};
 use std::cmp::Reverse;
 
-pub type KruskalResult = Result<Vec<Edge>, usize>;
+#[derive(Debug, Clone)]
+pub struct KruskalOutput(Vec<Edge>);
+
+pub type KruskalResult = Result<KruskalOutput, usize>;
 
 pub fn kruskal<const N: usize>(graph: &Graph<N>) -> KruskalResult {
     use std::collections::BinaryHeap;
@@ -26,7 +29,7 @@ pub fn kruskal<const N: usize>(graph: &Graph<N>) -> KruskalResult {
     }
 
     if k == 1 {
-        Ok(a)
+        Ok(KruskalOutput(a))
     } else {
         Err(k)
     }
