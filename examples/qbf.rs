@@ -1,4 +1,5 @@
 use algo_graph::{graph::Graph, qbf::qbf};
+use std::fs::File;
 
 fn main() {
     let g = Graph::from_adjacency_list([
@@ -8,5 +9,14 @@ fn main() {
         vec![(2, 3)],
     ]);
 
-    println!("{:?}", qbf(&g, 0));
+    match qbf(&g, 0) {
+        Ok(qbf_output) => {
+            println!("{qbf_output:?}");
+            let mut f = File::create("qbf.dot").expect("could not open file");
+            dot::render(&qbf_output, &mut f).expect("could not save output to file");
+        }
+        Err((v, _)) => {
+            println!("negative cycle found in input graph. {v} is a vertex in the cycle");
+        }
+    }
 }
