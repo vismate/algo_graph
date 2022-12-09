@@ -1,4 +1,5 @@
 use algo_graph::{graph::Graph, kruskal::kruskal};
+use std::fs::File;
 
 fn main() {
     let g = Graph::from_adjacency_list([
@@ -10,5 +11,12 @@ fn main() {
         vec![(1, 2), (2, 3), (4, 2)],
     ]);
 
-    println!("{:?}", kruskal(&g));
+    match kruskal(&g) {
+        Ok(kruskal_output) => {
+            println!("{kruskal_output:?}");
+            let mut f = File::create("kruskal.dot").expect("could not create file");
+            dot::render(&kruskal_output, &mut f).expect("could not save file to output");
+        }
+        Err(k) => println!("more than one ({k}) component in supplied graph"),
+    }
 }

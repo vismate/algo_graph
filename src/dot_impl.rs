@@ -2,6 +2,7 @@ use crate::{
     bfs::BFSOutput,
     dfs::{DFSOutput, EdgeKind},
     graph::{Edge, Graph, Vertex},
+    kruskal::KruskalOutput,
 };
 use dot::{GraphWalk, Id, LabelText, Labeller};
 use infinitable::Infinitable;
@@ -143,5 +144,45 @@ impl<'a, const N: usize> GraphWalk<'a, Vertex, (Edge, EdgeKind)> for DFSOutput<N
 
     fn target(&'a self, e: &(Edge, EdgeKind)) -> Vertex {
         e.0.v
+    }
+}
+
+impl<'a> Labeller<'a, Vertex, Edge> for KruskalOutput {
+    fn graph_id(&'a self) -> Id<'a> {
+        Id::new("kruskal_mst").unwrap()
+    }
+
+    fn node_id(&'a self, n: &Vertex) -> Id<'a> {
+        node_id(*n)
+    }
+
+    fn node_label(&'a self, n: &Vertex) -> LabelText<'a> {
+        LabelText::LabelStr(node_label_char(*n).to_string().into())
+    }
+
+    fn edge_label(&'a self, e: &Edge) -> LabelText<'a> {
+        LabelText::LabelStr(e.w.to_string().into())
+    }
+
+    fn kind(&self) -> dot::Kind {
+        dot::Kind::Graph
+    }
+}
+
+impl<'a> GraphWalk<'a, Vertex, Edge> for KruskalOutput {
+    fn nodes(&'a self) -> dot::Nodes<'a, Vertex> {
+        (0..=self.0.len()).collect()
+    }
+
+    fn edges(&'a self) -> dot::Edges<'a, Edge> {
+        self.0.as_slice().into()
+    }
+
+    fn source(&'a self, e: &Edge) -> Vertex {
+        e.u
+    }
+
+    fn target(&'a self, e: &Edge) -> Vertex {
+        e.v
     }
 }
