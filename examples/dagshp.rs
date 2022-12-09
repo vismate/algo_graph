@@ -1,4 +1,5 @@
 use algo_graph::{dagshp::dagshp, graph::Graph};
+use std::fs::File;
 
 fn main() {
     let g = Graph::from_adjacency_list([
@@ -10,5 +11,12 @@ fn main() {
         vec![],
     ]);
 
-    println!("{:?}", dagshp(&g, 0));
+    match dagshp(&g, 1) {
+        Ok(dagshp_output) => {
+            println!("{dagshp_output:?}");
+            let mut f = File::create("dagshp.dot").expect("could not create file");
+            dot::render(&dagshp_output, &mut f).expect("could not save output to file");
+        }
+        Err((v, _)) => println!("input graph is not a dag. {v} is a vertex in the cycle found"),
+    }
 }

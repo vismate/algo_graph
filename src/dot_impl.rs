@@ -1,5 +1,6 @@
 use crate::{
     bfs::BFSOutput,
+    dagshp::DAGshPOutput,
     dfs::{DFSOutput, EdgeKind},
     dijkstra::DijkstraOutput,
     graph::{Edge, Graph, Vertex},
@@ -39,6 +40,14 @@ fn edges_from_pi<'a, const N: usize>(pi: &[Option<Vertex>; N]) -> dot::Edges<'a,
         .enumerate()
         .filter_map(|(v, u)| u.map(|u| Edge { u, v, w: 0 }))
         .collect()
+}
+
+fn edge_label_from_dist_diff<'a>(ud: Infinitable<isize>, vd: Infinitable<isize>) -> LabelText<'a> {
+    if let Infinitable::Finite(du) = ud && let Infinitable::Finite(dv) = vd {
+        LabelText::LabelStr((dv - du).to_string().into())
+    } else {
+        unreachable!("edge should not be between vertices where at least one of them have a non-finite d value");
+    }
 }
 
 impl<'a, const N: usize> Labeller<'a, Vertex, Edge> for Graph<N> {
@@ -238,15 +247,47 @@ impl<'a, const N: usize> Labeller<'a, Vertex, Edge> for DijkstraOutput<N> {
     }
 
     fn edge_label(&'a self, e: &Edge) -> LabelText<'a> {
-        if let Infinitable::Finite(du) = self.d[e.u] && let Infinitable::Finite(dv) = self.d[e.v] {
-            LabelText::LabelStr((dv - du).to_string().into())
-        } else {
-            unreachable!("edge should not be between vertices where at least one of them have a non-finite d value");
-        }
+        edge_label_from_dist_diff(self.d[e.u], self.d[e.v])
     }
 }
 
 impl<'a, const N: usize> GraphWalk<'a, Vertex, Edge> for DijkstraOutput<N> {
+    fn nodes(&'a self) -> dot::Nodes<'a, Vertex> {
+        (0..N).collect()
+    }
+
+    fn edges(&'a self) -> dot::Edges<'a, Edge> {
+        edges_from_pi(&self.pi)
+    }
+
+    fn source(&'a self, e: &Edge) -> Vertex {
+        e.u
+    }
+
+    fn target(&'a self, e: &Edge) -> Vertex {
+        e.v
+    }
+}
+
+impl<'a, const N: usize> Labeller<'a, Vertex, Edge> for DAGshPOutput<N> {
+    fn graph_id(&'a self) -> Id<'a> {
+        Id::new("dagshp_output_graph").unwrap()
+    }
+
+    fn node_id(&'a self, n: &Vertex) -> Id<'a> {
+        node_id(*n)
+    }
+
+    fn node_label(&'a self, n: &Vertex) -> LabelText<'a> {
+        node_label_with_value(*n, &self.d[*n])
+    }
+
+    fn edge_label(&'a self, e: &Edge) -> LabelText<'a> {
+        edge_label_from_dist_diff(self.d[e.u], self.d[e.v])
+    }
+}
+
+impl<'a, const N: usize> GraphWalk<'a, Vertex, Edge> for DAGshPOutput<N> {
     fn nodes(&'a self) -> dot::Nodes<'a, Vertex> {
         (0..N).collect()
     }
