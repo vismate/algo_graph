@@ -2,7 +2,7 @@ use crate::graph::{Edge, Graph, Vertex};
 use std::cmp::Reverse;
 
 #[derive(Debug, Clone)]
-pub struct KruskalOutput(Vec<Edge>);
+pub struct KruskalOutput(pub Vec<Edge>);
 
 pub type KruskalResult = Result<KruskalOutput, usize>;
 
