@@ -3,6 +3,7 @@ use crate::{
     dfs::{DFSOutput, EdgeKind},
     graph::{Edge, Graph, Vertex},
     kruskal::KruskalOutput,
+    prim::PrimOutput,
 };
 use dot::{GraphWalk, Id, LabelText, Labeller};
 use infinitable::Infinitable;
@@ -176,6 +177,41 @@ impl<'a> GraphWalk<'a, Vertex, Edge> for KruskalOutput {
 
     fn edges(&'a self) -> dot::Edges<'a, Edge> {
         self.0.as_slice().into()
+    }
+
+    fn source(&'a self, e: &Edge) -> Vertex {
+        e.u
+    }
+
+    fn target(&'a self, e: &Edge) -> Vertex {
+        e.v
+    }
+}
+
+impl<'a, const N: usize> Labeller<'a, Vertex, Edge> for PrimOutput<N> {
+    fn graph_id(&'a self) -> Id<'a> {
+        Id::new("prim_mst").unwrap()
+    }
+
+    fn node_id(&'a self, n: &Vertex) -> Id<'a> {
+        node_id(*n)
+    }
+    fn node_label(&'a self, n: &Vertex) -> LabelText<'a> {
+        LabelText::LabelStr(node_label_char(*n).to_string().into())
+    }
+
+    fn kind(&self) -> dot::Kind {
+        dot::Kind::Graph
+    }
+}
+
+impl<'a, const N: usize> GraphWalk<'a, Vertex, Edge> for PrimOutput<N> {
+    fn nodes(&'a self) -> dot::Nodes<'a, Vertex> {
+        (0..N).collect()
+    }
+
+    fn edges(&'a self) -> dot::Edges<'a, Edge> {
+        edges_from_pi(&self.p)
     }
 
     fn source(&'a self, e: &Edge) -> Vertex {
