@@ -6,5 +6,6 @@ pub mod dijkstra;
 pub mod dot_impl;
 pub mod graph;
 pub mod kruskal;
+pub mod parse_graph;
 pub mod prim;
 pub mod qbf;

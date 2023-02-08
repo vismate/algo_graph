@@ -10,3 +10,4 @@ authors = ["vismate <visnyarmate@gmail.com>"]
 priority-queue = "~1.3"
 dot = "0.1.4"
 infinitable = "~1.3"
+nom = "~7.1"

@@ -1,15 +1,19 @@
-use algo_graph::{dagshp::dagshp, graph::Graph};
+use algo_graph::{dagshp::dagshp, graph};
 use std::fs::File;
 
 fn main() {
-    let g = Graph::from_adjacency_list([
-        vec![(1, 1), (3, 3), (4, 3)],
-        vec![(4, 1), (5, 3)],
-        vec![(1, 1), (5, 3)],
-        vec![],
-        vec![(3, 0), (5, 2)],
-        vec![],
-    ]);
+    let g = graph! {
+        Nodes: 6;
+
+        a -> b, 1 ; d, 3 ; e, 3.
+        b -> e, 1 ; f, 3.
+        c -> b, 1 ; f, 3.
+        d -> .
+        e -> d, 0 ; f, 2.
+        f -> .
+
+    }
+    .expect("could not parse graph");
 
     match dagshp(&g, 0) {
         Ok(dagshp_output) => {

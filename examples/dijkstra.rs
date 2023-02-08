@@ -1,15 +1,17 @@
-use algo_graph::{dijkstra::dijkstra, graph::Graph};
+use algo_graph::{dijkstra::dijkstra, graph};
 use std::fs::File;
 
 fn main() {
-    let g = Graph::from_adjacency_list([
-        vec![(1, 1), (3, 3), (4, 3)],
-        vec![(0, 1), (4, 1), (5, 3)],
-        vec![],
-        vec![(0, 3), (4, 0)],
-        vec![(0, 3), (1, 1), (3, 0), (5, 2)],
-        vec![(1, 3), (4, 2)],
-    ]);
+    let g = graph! {
+        Nodes: 6;
+
+        a - b, 1 ; d, 3 ; e, 3.
+        b - e, 1 ; f, 3.
+        c - .
+        d - e, 0.
+        e - f, 2.
+    }
+    .expect("could not parse graph");
 
     let dijkstra_output = dijkstra(&g, 0);
     println!("{dijkstra_output:?}");

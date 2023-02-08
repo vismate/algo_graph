@@ -1,8 +1,16 @@
-use algo_graph::{dfs::dfs, graph::Graph};
+use algo_graph::{dfs::dfs, graph};
 use std::fs::File;
 
 fn main() {
-    let g = Graph::from_adjacency_list([vec![(1, 1), (2, 1)], vec![(3, 1)], vec![(3, 1)], vec![]]);
+    let g = graph! {
+        Nodes: 4;
+
+        a -> b ; c.
+        b -> d.
+        c -> d.
+        d -> .
+    }
+    .expect("could not parse graph");
 
     let dfs_output = dfs(&g);
     println!("{dfs_output:?}");

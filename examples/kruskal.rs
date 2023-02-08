@@ -1,15 +1,17 @@
-use algo_graph::{graph::Graph, kruskal::kruskal};
+use algo_graph::{graph, kruskal::kruskal};
 use std::fs::File;
 
 fn main() {
-    let g = Graph::from_adjacency_list([
-        vec![(1, 0), (3, 2), (4, 2)],
-        vec![(0, 0), (2, 1), (4, 1), (5, 2)],
-        vec![(1, 1), (5, 3)],
-        vec![(0, 2), (4, 0)],
-        vec![(0, 2), (1, 1), (3, 0), (5, 2)],
-        vec![(1, 2), (2, 3), (4, 2)],
-    ]);
+    let g = graph! {
+        Nodes: 6;
+
+        a - b, 0 ; d, 2 ; e, 2.
+        b - c, 1 ; e, 1 ; f, 2.
+        c - f, 3.
+        d - e, 0.
+        e - f, 2.
+    }
+    .expect("could not parse graph");
 
     match kruskal(&g) {
         Ok(kruskal_output) => {
