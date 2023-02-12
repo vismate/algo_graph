@@ -17,5 +17,5 @@ fn main() {
     println!("{dijkstra_output:?}");
 
     let mut f = File::create("dijkstra.dot").expect("could not create file");
-    dot::render(&dijkstra_output, &mut f).expect("could not save putput to file");
+    dot::render(&dijkstra_output, &mut f).expect("could not save output to file");
 }
