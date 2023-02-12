@@ -8,18 +8,18 @@ use nom::{
     IResult,
 };
 
-use crate::graph::Vertex;
+use crate::graph::{Graph, Vertex};
 
 #[derive(Debug, Clone)]
-pub struct Statement {
+struct Statement {
     node: Vertex,
     is_directed: bool,
-    neighbours: Vec<(Vertex, isize)>,
+    adjacent_nodes: Vec<(Vertex, isize)>,
 }
 
-fn identifier(input: &str) -> IResult<&str, Vertex> {
+fn vertex(input: &str) -> IResult<&str, Vertex> {
     map(satisfy(|c| c.is_ascii_alphanumeric()), |c| {
-        c as usize
+        c as Vertex
             - if c < 'A' {
                 48
             } else if c < 'a' {
@@ -35,51 +35,66 @@ fn edge_type(input: &str) -> IResult<&str, bool> {
     map(typ, |pat| pat == "->")(input)
 }
 
-fn neighbours(input: &str) -> IResult<&str, Vec<(Vertex, isize)>> {
+fn signed_number(input: &str) -> IResult<&str, isize> {
     let sign = map(alt((char('-'), char('+'))), |c| match c {
         '-' => -1,
         _ => 1,
     });
-    let number = map(
+
+    map(
         tuple((opt(sign), digit1)),
         |(sign, val): (Option<isize>, &str)| {
             let num = val.parse::<isize>().expect("weight cannot fit in a isize");
             num * sign.unwrap_or(1)
         },
-    );
-    let weight = preceded(char(','), number);
-    let neighbour = map(tuple((identifier, opt(weight))), |(idx, weight)| {
+    )(input)
+}
+
+fn adjacent_nodes(input: &str) -> IResult<&str, Vec<(Vertex, isize)>> {
+    let weight = preceded(char(','), signed_number);
+    let neighbour = map(tuple((vertex, opt(weight))), |(idx, weight)| {
         (idx, weight.unwrap_or(1))
     });
     let list = separated_list0(char(';'), neighbour);
     terminated(list, char('.'))(input)
 }
 
-pub fn statements(input: &str) -> IResult<&str, Vec<Statement>> {
-    let entry = tuple((identifier, edge_type, neighbours));
+fn statements(input: &str) -> IResult<&str, Vec<Statement>> {
+    let statement = tuple((vertex, edge_type, adjacent_nodes));
 
-    let statement = map(entry, |(node, is_directed, neighbours)| Statement {
+    let statement = map(statement, |(node, is_directed, neighbours)| Statement {
         node,
         is_directed,
-        neighbours,
+        adjacent_nodes: neighbours,
     });
 
     many0(statement)(input)
 }
 
-pub fn create_graph<const N: usize>(
-    statements: Vec<Statement>,
-) -> Result<[Vec<(Vertex, isize)>; N], String>
+fn create_graph<const N: usize>(statements: &[Statement]) -> Result<Graph<N>, String>
 where
     [Vec<(Vertex, isize)>; N]: Default,
 {
-    fn insert_uniq_sorted(vec: &mut Vec<(Vertex, isize)>, val: (Vertex, isize)) {
-        if let Err(pos) = vec.binary_search_by_key(&val.0, |&(idx, _)| idx) {
-            vec.insert(pos, val);
-        }
-    }
-
     let mut adjacency_list: [Vec<(Vertex, isize)>; N] = Default::default();
+
+    macro_rules! insert_uniq_sorted {
+        ($node: expr, $val:expr) => {
+            let l = &mut adjacency_list[$node];
+
+            match l.binary_search_by_key(&$val.0, |&(idx, _)| idx) {
+                Err(pos) => {
+                    l.insert(pos, $val);
+                }
+                Ok(pos) if l[pos].1 != $val.1 => {
+                    return Err(format!(
+                        "node {} already has a edge to node {} with a different weight (multi edges are not allowed)",
+                        $node, $val.0
+                    ));
+                }
+                _ => {}
+            }
+        };
+    }
 
     for statement in statements {
         if statement.node >= N {
@@ -88,46 +103,51 @@ where
                 statement.node
             ));
         }
-        for val @ (neighbour, weight) in statement.neighbours {
-            if neighbour >= N {
-                return Err(format!(
-                    "node {neighbour} does not fit in graph of size {N}"
-                ));
+        for val @ &(adjacent, weight) in &statement.adjacent_nodes {
+            if adjacent >= N {
+                return Err(format!("node {adjacent} does not fit in graph of size {N}"));
             }
 
-            if statement.node == neighbour {
+            if statement.node == adjacent {
                 return Err("loop edges are not allowed".into());
             }
 
-            insert_uniq_sorted(&mut adjacency_list[statement.node], val);
+            insert_uniq_sorted!(statement.node, *val);
 
             if !statement.is_directed {
-                insert_uniq_sorted(&mut adjacency_list[neighbour], (statement.node, weight));
+                insert_uniq_sorted!(adjacent, (statement.node, weight));
             }
         }
     }
 
-    Ok(adjacency_list)
+    Ok(Graph { adjacency_list })
+}
+
+pub fn parse_graph<const N: usize>(input: &str) -> Result<Graph<N>, String>
+where
+    [Vec<(Vertex, isize)>; N]: Default,
+{
+    if N > 26 {
+        return Err("number of nodes must be less or equal to 26".into());
+    }
+
+    // TODO: refactor so that this is not necessary
+    let input: String = input.chars().filter(|c| !c.is_whitespace()).collect();
+
+    match statements(&input) {
+        Ok(("", res)) => create_graph(&res),
+        Err(e) => Err(e.to_string()),
+        _ => Err("syntax error".into()),
+    }
 }
 
 #[macro_export]
 macro_rules! graph {
     (Nodes:$N:expr; $($t:tt)*) => {
         {
+            // parse_graph check N again in runtime, but it is still useful to fail the compilation instead of producing a runtime error
             const _: () = assert!($N <= 26);
-
-            let input: String = stringify!($($t)*)
-                .chars()
-                .filter(|c| !c.is_whitespace())
-                .collect();
-
-            match $crate::parse_graph::statements(&input) {
-                Ok(("", res)) => {
-                    $crate::parse_graph::create_graph::<$N>(res)
-                },
-                Err(e) => Err(e.to_string()),
-                _ => Err("syntax error".into())
-            }.map(|l| $crate::graph::Graph::from_adjacency_list(l))
+            $crate::parse_graph::parse_graph::<$N>(stringify!($($t)*))
         }
     };
 }
