@@ -6,7 +6,7 @@ pub type Vertex = usize;
 pub struct Edge {
     pub u: Vertex,
     pub v: Vertex,
-    pub w: isize,
+    pub w: i32,
 }
 
 impl PartialEq for Edge {
@@ -29,11 +29,11 @@ impl Ord for Edge {
 
 #[derive(Debug, Clone)]
 pub struct Graph<const N: usize> {
-    pub adjacency_list: [Vec<(Vertex, isize)>; N],
+    pub adjacency_list: [Vec<(Vertex, i32)>; N],
 }
 
 impl<const N: usize> Graph<N> {
-    pub fn from_adjacency_list(adjacency_list: [Vec<(Vertex, isize)>; N]) -> Self {
+    pub fn from_adjacency_list(adjacency_list: [Vec<(Vertex, i32)>; N]) -> Self {
         Self { adjacency_list }
     }
 

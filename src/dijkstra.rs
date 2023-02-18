@@ -5,7 +5,7 @@ use std::cmp::Reverse;
 
 #[derive(Debug, Clone)]
 pub struct DijkstraOutput<const N: usize> {
-    pub d: [Infinitable<isize>; N],
+    pub d: [Infinitable<i32>; N],
     pub pi: [Option<Vertex>; N],
 }
 
@@ -14,7 +14,7 @@ pub fn dijkstra<const N: usize>(graph: &Graph<N>, s: Vertex) -> DijkstraOutput<N
     let mut pi = [None; N];
 
     d[s] = Finite(0);
-    let mut q: PriorityQueue<Vertex, Reverse<Infinitable<isize>>> =
+    let mut q: PriorityQueue<Vertex, Reverse<Infinitable<i32>>> =
         (0..N).zip(d.iter().copied().map(Reverse)).collect();
 
     while let Some((u, _)) = q.pop() && d[u] < Infinity {

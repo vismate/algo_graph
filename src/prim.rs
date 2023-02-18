@@ -5,7 +5,7 @@ use std::cmp::Reverse;
 
 #[derive(Debug, Clone)]
 pub struct PrimOutput<const N: usize> {
-    pub c: [Infinitable<isize>; N],
+    pub c: [Infinitable<i32>; N],
     pub p: [Option<Vertex>; N],
 }
 
@@ -14,7 +14,7 @@ pub fn prim<const N: usize>(graph: &Graph<N>, r: Vertex) -> PrimOutput<N> {
     let mut p = [None; N];
 
     c[r] = Finite(0);
-    let mut q: PriorityQueue<Vertex, Reverse<Infinitable<isize>>> =
+    let mut q: PriorityQueue<Vertex, Reverse<Infinitable<i32>>> =
         (0..N).zip(c.iter().copied().map(Reverse)).collect();
 
     while let Some((u, _)) = q.pop() {
